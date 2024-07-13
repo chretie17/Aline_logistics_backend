@@ -1,10 +1,10 @@
 const express = require('express');
-const cors = require('cors'); // Import cors
 const sequelize = require('./models/index').sequelize;
+const cors = require('cors');
 const app = express();
 const port = 3000;
 
-app.use(cors()); // Use cors middleware
+app.use(cors());
 app.use(express.json());
 
 const userRoutes = require('./routes/userRoutes');
@@ -20,14 +20,14 @@ const adminRoutes = require('./routes/adminRoutes');
 app.use('/api/users', userRoutes);
 app.use('/api/stocks', stockRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/transport', transportRoutes);
+app.use('/api/transports', transportRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/surveys', surveyRoutes);
 app.use('/api/purchases', purchaseRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/admin', adminRoutes);
 
-sequelize.sync().then(() => {
+sequelize.sync({ alter: true }).then(() => { // alter: true ensures models update automatically
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
