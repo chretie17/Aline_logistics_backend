@@ -12,10 +12,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    incomingRow: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
     price: {
       type: DataTypes.FLOAT,
       allowNull: false,
@@ -39,5 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BLOB('long'), // Store image as binary data
     },
   });
+
+  Stock.associate = (models) => {
+    Stock.hasMany(models.Order, { foreignKey: 'productId', as: 'orders' });
+  };
+
   return Stock;
 };

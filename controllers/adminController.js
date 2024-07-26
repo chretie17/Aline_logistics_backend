@@ -1,5 +1,6 @@
 const User = require('../models').User;
 const Order = require('../models').Order;
+const Stock = require('../models').Stock;
 const Transport = require('../models').Transport;
 const bcrypt = require('bcryptjs');
 
@@ -143,7 +144,39 @@ exports.deleteTransport = async (req, res) => {
 };
 
 // Reports
-exports.getReports = async (req, res) => {
-  // Implement report generation logic here
-  res.json({ message: 'Reports generated' });
+
+exports.getOrders = async (req, res) => {
+  try {
+    const orders = await Order.findAll({
+      include: [
+        { model: Stock, as: 'product' },
+        { model: User, as: 'user' }
+      ]
+    });
+    res.json({ data: orders });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Stock
+exports.getStock = async (req, res) => {
+  try {
+    const stock = await Stock.findAll();
+    res.json({ data: stock });
+  } catch (error) {
+    console.error('Error fetching stock:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+exports.getDashboardData = async (req, res) => {
+  try {
+    const totalOrders = await Order.count();
+    const totalStock = await Stock.count('In-Stock');
+
+    res.json({ totalOrders, totalStock });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };

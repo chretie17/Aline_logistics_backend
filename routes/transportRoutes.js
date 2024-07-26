@@ -6,4 +6,5 @@ const router = express.Router();
 router.get('/', auth(['driver', 'admin']), transportController.getAllTransports);
 router.post('/', auth(['admin']), transportController.createTransport);
 
+
 module.exports = router;

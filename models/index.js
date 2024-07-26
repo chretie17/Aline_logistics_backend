@@ -19,4 +19,8 @@ db.Survey = require('./Survey')(sequelize, DataTypes);
 db.Purchase = require('./Purchase')(sequelize, DataTypes);
 db.Sale = require('./Sale')(sequelize, DataTypes);
 
+// Define associations
+db.Order.associate(db);
+db.Stock.associate(db);
+
 module.exports = db;

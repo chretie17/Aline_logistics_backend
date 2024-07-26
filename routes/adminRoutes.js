@@ -21,6 +21,9 @@ router.post('/transports', auth(['admin']), adminController.createTransport);
 router.put('/transports/:id', auth(['admin']), adminController.updateTransport);
 router.delete('/transports/:id', auth(['admin']), adminController.deleteTransport);
 
-router.get('/reports', auth(['admin']), adminController.getReports);
+router.get('/stocks', auth(['admin']), adminController.getStock);
+router.get('/dashboard-data',auth(['admin']), adminController.getDashboardData);
+
+
 
 module.exports = router;
