@@ -1,4 +1,5 @@
 const { Order, Stock, User } = require('../models');
+const { Op } = require('sequelize');
 
 exports.getAllOrders = async (req, res) => {
   try {
@@ -219,3 +220,38 @@ exports.getOrdersByUser = async (req, res) => {
   }
 };
 
+exports.getOrderStatusCounts = async (req, res) => {
+  try {
+    const statusCounts = await Order.findAll({
+      attributes: ['status', [sequelize.fn('COUNT', sequelize.col('status')), 'count']],
+      group: 'status',
+    });
+
+    res.json({ data: statusCounts });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+exports.getOrdersToday = async (req, res) => {
+  try {
+    // Get the start and end of the current day
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0); // Set to the start of the day
+
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999); // Set to the end of the day
+
+    // Query the orders created today
+    const ordersToday = await Order.findAll({
+      where: {
+        createdAt: {
+          [Op.between]: [startOfToday, endOfToday],
+        },
+      },
+    });
+
+    res.json({ data: ordersToday });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

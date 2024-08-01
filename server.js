@@ -16,6 +16,7 @@ const surveyRoutes = require('./routes/surveyRoutes');
 const purchaseRoutes = require('./routes/purchaseRoutes');
 const saleRoutes = require('./routes/saleRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const StockDash =require('./routes/stockDash');
 
 app.use('/api/users', userRoutes);
 app.use('/api/stocks', stockRoutes);
@@ -26,6 +27,8 @@ app.use('/api/surveys', surveyRoutes);
 app.use('/api/purchases', purchaseRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/dash', StockDash);
+
 
 sequelize.sync({ alter: true }).then(() => { // alter: true ensures models update automatically
   app.listen(port, () => {
