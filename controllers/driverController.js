@@ -1,10 +1,17 @@
-const { Driver } = require('../models');
+const { sequelize } = require('../models');
+
 
 exports.getAllDrivers = async (req, res) => {
   try {
-    const drivers = await Driver.findAll();
-    res.json(drivers);
+    // Fetch all users with the role 'driver'
+    const [drivers] = await sequelize.query(`
+      SELECT id, name FROM Users WHERE role = 'driver'
+    `);
+
+    res.json({ data: drivers });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Error fetching drivers:', error);
+    res.status(500).json({ error: error.message });
   }
 };
+

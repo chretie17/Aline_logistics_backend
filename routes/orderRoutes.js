@@ -19,6 +19,8 @@ router.get('/today;', orderController.getOrdersToday);
 router.get('/statuscount;', orderController.getOrderStatusCounts);
 
 router.put('/orders/cancel/:orderId', orderController.cancelOrder);
+router.put('/mark-delivered/:orderId', auth(['driver']), orderController.markOrderAsDelivered);
+
 
 
 module.exports = router;

@@ -29,6 +29,15 @@ module.exports = (sequelize, DataTypes) => {
     orderDeliveredAt: {
       type: DataTypes.DATE,
     },
+    driverId: {
+      type: DataTypes.INTEGER,
+      allowNull: true, 
+    },
+    driverAssigned: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    
   });
 
   Order.associate = (models) => {

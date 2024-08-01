@@ -1,5 +1,6 @@
 const { Order, Stock, User } = require('../models');
 const { Op } = require('sequelize');
+const { sequelize } = require('../models'); // Import Sequelize instance for executing raw queries
 
 exports.getAllOrders = async (req, res) => {
   try {
@@ -155,14 +156,21 @@ exports.updateOrderStatus = async (req, res) => {
 
 exports.assignOrderToDriver = async (req, res) => {
   try {
-    const order = await Order.findByPk(req.params.id);
+    const { driverId } = req.body;
+    const orderId = req.params.id;
+
+    const order = await Order.findByPk(orderId);
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    order.driverId = req.body.driverId;
+
+    order.driverId = driverId;
+    order.driverAssigned = true; // Mark as driver assigned
     await order.save();
+
     res.json({ message: 'Order assigned to driver', order });
   } catch (error) {
+    console.error('Error assigning order to driver:', error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -184,12 +192,16 @@ exports.assignOrderToDriver = async (req, res) => {
 exports.getOrdersByDriver = async (req, res) => {
   try {
     const { driverId } = req.params;
-    const orders = await Order.findAll({ where: { driverId } });
-    res.json(orders);
+    const orders = await Order.findAll({
+      where: { driverId, status: { [Op.ne]: 'Order Delivered' } }, // Exclude delivered orders
+      include: [{ model: Stock, as: 'product' }],
+    });
+    res.json({ data: orders });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
 exports.deleteOrder = async (req, res) => {
   console.log('DELETE /orders/:id endpoint hit');
   try {
@@ -253,5 +265,26 @@ exports.getOrdersToday = async (req, res) => {
     res.json({ data: ordersToday });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+exports.markOrderAsDelivered = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findByPk(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (order.status === 'Order Delivered') {
+      return res.status(400).json({ message: 'Order is already marked as delivered' });
+    }
+
+    order.status = 'Order Delivered';
+    order.orderDeliveredAt = new Date(); // Timestamp for delivery
+    await order.save();
+
+    res.json({ message: 'Order marked as delivered', order });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };

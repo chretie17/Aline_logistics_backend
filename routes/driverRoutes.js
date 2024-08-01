@@ -1,10 +1,10 @@
-const { Driver } = require('../models');
+const express = require('express');
+const router = express.Router();
+const auth = require('../middleware/auth');
 
-exports.getAllDrivers = async (req, res) => {
-  try {
-    const drivers = await Driver.findAll();
-    res.json(drivers);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+
+const { getAllDrivers } = require('../controllers/DriverController');
+
+router.get('/', auth(['stockManager', 'admin']), getAllDrivers);
+
+module.exports = router;
