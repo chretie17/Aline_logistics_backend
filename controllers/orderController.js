@@ -13,20 +13,25 @@ exports.getAllOrders = async (req, res) => {
 
 exports.createOrder = async (req, res) => {
   try {
-    const { userId, productId, quantity } = req.body;
+    const { userId, productId, quantity, deliveryLatitude, deliveryLongitude, deliveryAddress, paymentMethod } = req.body;
+    
     const order = await Order.create({
       userId,
       productId,
       quantity,
       status: 'Order Created',
       createdAt: new Date(),
+      deliveryLatitude,
+      deliveryLongitude,
+      deliveryAddress,
+      paymentMethod,
     });
+
     res.status(201).json({ message: 'Order created', order });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
-
 
 exports.getClientOrders = async (req, res) => {
   try {
@@ -37,6 +42,7 @@ exports.getClientOrders = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 exports.getOrderDetails = async (req, res) => {
   try {
     const order = await Order.findByPk(req.params.id, {
@@ -88,15 +94,23 @@ exports.updateOrderStatus = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 exports.getOrdersByUser = async (req, res) => {
   try {
-    const userId = req.params.userId; // Get userId from the path parameter
-    const orders = await Order.findAll({ where: { userId } });
-    res.json(orders);
+    const userId = req.params.userId;
+    const orders = await Order.findAll({
+      where: { userId },
+      include: [
+        { model: Stock, as: 'product' },
+        { model: User, as: 'user' }
+      ]
+    });
+    res.json({ data: orders });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
 exports.cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -117,42 +131,6 @@ exports.cancelOrder = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-exports.getAllOrders = async (req, res) => {
-  try {
-    const orders = await Order.findAll();
-    res.json(orders);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-exports.updateOrderStatus = async (req, res) => {
-  try {
-    const { status } = req.body;
-    const order = await Order.findByPk(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    order.status = status;
-
-    // Set timestamp for status changes
-    if (status === 'Order Accepted') {
-      order.orderAcceptedAt = new Date();
-    } else if (status === 'Order Packed') {
-      order.orderPackedAt = new Date();
-    } else if (status === 'Order Shipped') {
-      order.orderShippedAt = new Date();
-    } else if (status === 'Order Delivered') {
-      order.orderDeliveredAt = new Date();
-    }
-
-    await order.save();
-    res.json({ message: 'Order status updated', order });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
 
 exports.assignOrderToDriver = async (req, res) => {
   try {
@@ -165,7 +143,7 @@ exports.assignOrderToDriver = async (req, res) => {
     }
 
     order.driverId = driverId;
-    order.driverAssigned = true; // Mark as driver assigned
+    order.driverAssigned = true;
     await order.save();
 
     res.json({ message: 'Order assigned to driver', order });
@@ -175,25 +153,11 @@ exports.assignOrderToDriver = async (req, res) => {
   }
 };
 
-exports.assignOrderToDriver = async (req, res) => {
-  try {
-    const order = await Order.findByPk(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-    order.driverId = req.body.driverId;
-    await order.save();
-    res.json({ message: 'Order assigned to driver', order });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
 exports.getOrdersByDriver = async (req, res) => {
   try {
     const { driverId } = req.params;
     const orders = await Order.findAll({
-      where: { driverId, status: { [Op.ne]: 'Order Delivered' } }, // Exclude delivered orders
+      where: { driverId, status: { [Op.ne]: 'Order Delivered' } },
       include: [{ model: Stock, as: 'product' }],
     });
     res.json({ data: orders });
@@ -216,21 +180,6 @@ exports.deleteOrder = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-exports.getOrdersByUser = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const orders = await Order.findAll({
-      where: { userId },
-      include: [
-        { model: Stock, as: 'product' },
-        { model: User, as: 'user' }
-      ]
-    });
-    res.json({ data: orders });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
 
 exports.getOrderStatusCounts = async (req, res) => {
   try {
@@ -244,16 +193,15 @@ exports.getOrderStatusCounts = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 exports.getOrdersToday = async (req, res) => {
   try {
-    // Get the start and end of the current day
     const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0); // Set to the start of the day
+    startOfToday.setHours(0, 0, 0, 0);
 
     const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999); // Set to the end of the day
+    endOfToday.setHours(23, 59, 59, 999);
 
-    // Query the orders created today
     const ordersToday = await Order.findAll({
       where: {
         createdAt: {
@@ -267,6 +215,7 @@ exports.getOrdersToday = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 exports.markOrderAsDelivered = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -280,7 +229,7 @@ exports.markOrderAsDelivered = async (req, res) => {
     }
 
     order.status = 'Order Delivered';
-    order.orderDeliveredAt = new Date(); // Timestamp for delivery
+    order.orderDeliveredAt = new Date();
     await order.save();
 
     res.json({ message: 'Order marked as delivered', order });

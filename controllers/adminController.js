@@ -3,6 +3,8 @@ const Order = require('../models').Order;
 const Stock = require('../models').Stock;
 const Transport = require('../models').Transport;
 const bcrypt = require('bcryptjs');
+const { sequelize } = require('../models');
+
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -177,6 +179,24 @@ exports.getDashboardData = async (req, res) => {
 
     res.json({ totalOrders, totalStock });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+exports.getCompletedDeliveries = async (req, res) => {
+  try {
+    console.log('Fetching completed deliveries...');
+    const [deliveries] = await sequelize.query(
+      `SELECT Orders.id, Orders.status, Orders.deliveryAddress, Orders.deliveryLatitude, Orders.deliveryLongitude, 
+              Users.name AS driverName, Orders.updatedAt AS deliveryDate
+       FROM Orders 
+       INNER JOIN Users ON Orders.driverId = Users.id
+       WHERE Orders.status = 'Order Delivered'
+       ORDER BY Orders.updatedAt DESC`
+    );
+    console.log('Completed deliveries:', deliveries);
+    res.json({ data: deliveries });
+  } catch (error) {
+    console.error('Error fetching completed deliveries:', error);
     res.status(500).json({ error: error.message });
   }
 };

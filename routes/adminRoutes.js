@@ -16,10 +16,8 @@ router.put('/orders/:id', auth(['admin']), adminController.updateOrder);
 router.delete('/orders/:id', auth(['admin']), adminController.deleteOrder);
 
 // Transports CRUD
-router.get('/transports', auth(['admin']), adminController.getAllTransports);
-router.post('/transports', auth(['admin']), adminController.createTransport);
-router.put('/transports/:id', auth(['admin']), adminController.updateTransport);
-router.delete('/transports/:id', auth(['admin']), adminController.deleteTransport);
+router.get('/transports',  adminController.getCompletedDeliveries);
+
 
 router.get('/stocks', auth(['admin']), adminController.getStock);
 router.get('/dashboard-data',auth(['admin']), adminController.getDashboardData);

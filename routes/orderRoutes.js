@@ -17,7 +17,6 @@ router.delete('/:id', orderController.deleteOrder);  // Ensure this line exists
 router.get('/orders/user/:userId', orderController.getOrdersByUser);
 router.get('/today;', orderController.getOrdersToday);
 router.get('/statuscount;', orderController.getOrderStatusCounts);
-
 router.put('/orders/cancel/:orderId', orderController.cancelOrder);
 router.put('/mark-delivered/:orderId', auth(['driver']), orderController.markOrderAsDelivered);
 

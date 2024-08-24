@@ -37,7 +37,23 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    
+    // New fields for location
+    deliveryLatitude: {
+      type: DataTypes.DECIMAL(10, 8),  // Latitude has a precision of up to 8 decimal places
+      allowNull: true,
+    },
+    deliveryLongitude: {
+      type: DataTypes.DECIMAL(11, 8),  // Longitude has a precision of up to 8 decimal places
+      allowNull: true,
+    },
+    deliveryAddress: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    paymentMethod: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    }
   });
 
   Order.associate = (models) => {
