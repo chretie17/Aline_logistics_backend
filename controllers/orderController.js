@@ -146,6 +146,7 @@ exports.assignOrderToDriver = async (req, res) => {
     order.driverAssigned = true;
     await order.save();
 
+    // Return the updated order state in the response
     res.json({ message: 'Order assigned to driver', order });
   } catch (error) {
     console.error('Error assigning order to driver:', error);
