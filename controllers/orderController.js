@@ -13,8 +13,33 @@ exports.getAllOrders = async (req, res) => {
 
 exports.createOrder = async (req, res) => {
   try {
-    const { userId, productId, quantity, deliveryLatitude, deliveryLongitude, deliveryAddress, paymentMethod } = req.body;
-    
+    const {
+      userId,
+      productId,
+      quantity,
+      deliveryLatitude,
+      deliveryLongitude,
+      deliveryAddress,
+      paymentMethod,
+    } = req.body;
+
+    // Find the product in the Stock table
+    const product = await Stock.findByPk(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found in inventory' });
+    }
+
+    // Check if there is enough stock
+    if (product.quantity < quantity) {
+      return res.status(400).json({ message: 'Insufficient stock for this product' });
+    }
+
+    // Deduct the quantity from the inventory
+    product.quantity -= quantity;
+    await product.save();
+
+    // Create the order
     const order = await Order.create({
       userId,
       productId,
@@ -27,11 +52,12 @@ exports.createOrder = async (req, res) => {
       paymentMethod,
     });
 
-    res.status(201).json({ message: 'Order created', order });
+    res.status(201).json({ message: 'Order created and inventory updated', order });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
 
 exports.getClientOrders = async (req, res) => {
   try {

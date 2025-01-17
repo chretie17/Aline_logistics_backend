@@ -16,7 +16,7 @@ const surveyRoutes = require('./routes/surveyRoutes');
 const purchaseRoutes = require('./routes/purchaseRoutes');
 const saleRoutes = require('./routes/saleRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const StockDash =require('./routes/stockDash');
+const StockDash = require('./routes/stockDash');
 const Drivers = require('./routes/driverRoutes');
 const Reportsroutes = require('./routes/reportRoutes');
 
@@ -33,10 +33,15 @@ app.use('/api/dash', StockDash);
 app.use('/api/drivers', Drivers);
 app.use('/api/reports', Reportsroutes);
 
-sequelize.sync({ alter: true }).then(() => { // alter: true ensures models update automatically
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+// Start the server after ensuring the database connection is successful
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Database connection established successfully.');
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Unable to connect to the database:', error);
   });
-}).catch(error => {
-  console.error('Unable to connect to the database:', error);
-});
