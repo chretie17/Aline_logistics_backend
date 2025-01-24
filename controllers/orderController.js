@@ -31,12 +31,12 @@ exports.createOrder = async (req, res) => {
     }
 
     // Check if there is enough stock
-    if (product.quantity < quantity) {
+    if (product.inStock < quantity) { // Change `product.quantity` to match your column name
       return res.status(400).json({ message: 'Insufficient stock for this product' });
     }
 
     // Deduct the quantity from the inventory
-    product.quantity -= quantity;
+    product.inStock -= quantity; // Update this field to match your database column for stock
     await product.save();
 
     // Create the order
@@ -57,6 +57,7 @@ exports.createOrder = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 
 
 exports.getClientOrders = async (req, res) => {
