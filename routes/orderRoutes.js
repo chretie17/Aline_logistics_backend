@@ -4,6 +4,7 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 router.get('/', auth(['stockManager', 'admin']), orderController.getAllOrders);
+router.get('/allorders',  orderController.getAllNEWOrders);
 router.post('/', auth(['client']), orderController.createOrder);
 router.put('/:id', auth(['stockManager', 'admin']), orderController.updateOrderStatus); 
 router.get('/client/:userId', auth(['client']), orderController.getClientOrders);

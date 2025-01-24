@@ -27,11 +27,11 @@ exports.createUser = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role,phone } = req.body;
   const { id } = req.params;
   try {
     const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
-    const updates = { name, email, role };
+    const updates = { name, email, role,phone };
     if (hashedPassword) {
       updates.password = hashedPassword;
     }

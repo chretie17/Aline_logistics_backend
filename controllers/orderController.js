@@ -10,6 +10,22 @@ exports.getAllOrders = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+exports.getAllNEWOrders = async (req, res) => {
+  try {
+    const orders = await Order.findAll({
+      include: [
+        {
+          model: User, // Include user details
+          as: 'user',
+          attributes: ['id', 'name', 'email', 'phone'], // Select fields to return
+        },
+      ],
+    });
+    res.json({ data: orders });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
 exports.createOrder = async (req, res) => {
   try {
@@ -186,13 +202,25 @@ exports.getOrdersByDriver = async (req, res) => {
     const { driverId } = req.params;
     const orders = await Order.findAll({
       where: { driverId, status: { [Op.ne]: 'Order Delivered' } },
-      include: [{ model: Stock, as: 'product' }],
+      include: [
+        {
+          model: Stock, // Include stock details if needed
+          as: 'product',
+        },
+        {
+          model: User, // Include user details
+          as: 'user',
+          attributes: ['id', 'name', 'email', 'phone'], // Select specific fields
+        },
+      ],
     });
+
     res.json({ data: orders });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
 
 exports.deleteOrder = async (req, res) => {
   console.log('DELETE /orders/:id endpoint hit');
