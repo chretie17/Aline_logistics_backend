@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/', auth(['stockManager', 'admin','client']), stockController.getAllStocks);
 router.post('/', auth(['stockManager', 'admin' ]), stockController.createStock);
-router.put('/:id', auth(['stockManager']), stockController.updateStock);
-router.delete('/:id', auth(['stockManager']), stockController.deleteStock);
+router.put('/:id', auth(['stockManager', 'admin']), stockController.updateStock);
+router.delete('/:id', auth(['stockManager','admin']), stockController.deleteStock);
 
 module.exports = router;

@@ -20,7 +20,7 @@ router.get('/transports',  adminController.getCompletedDeliveries);
 
 
 router.get('/stocks', auth(['admin']), adminController.getStock);
-router.get('/dashboard-data',auth(['admin']), adminController.getDashboardData);
+router.get('/dashboard-data',adminController.getDashboardData);
 
 
 
